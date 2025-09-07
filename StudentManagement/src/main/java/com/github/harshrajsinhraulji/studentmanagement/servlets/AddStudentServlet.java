@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Date;
 
-@WebServlet("/addStudent") // matches form action
+@WebServlet("/addSudent")
 public class AddStudentServlet extends HttpServlet {
 
     @Override
@@ -22,8 +22,9 @@ public class AddStudentServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
 
+        out.println("<html><head><title>Add Student Result</title></head><body>");
+
         try {
-            // 1. Read parameters
             String name = request.getParameter("name");
             String email = request.getParameter("email");
             String phoneNumber = request.getParameter("phoneNumber");
@@ -32,28 +33,28 @@ public class AddStudentServlet extends HttpServlet {
             String course = request.getParameter("course");
             String yearStr = request.getParameter("year");
 
-            // 2. Convert values
             Date dob = Date.valueOf(dobStr);
             int year = Integer.parseInt(yearStr);
 
-            // 3. Create Student object
             Student student = new Student(name, email, phoneNumber, gender, dob, course, year);
 
-            // 4. Call DAO
             StudentDAO dao = new StudentDAO();
             int studentId = dao.addStudent(student);
 
-            // 5. Show result directly
             if (studentId > 0) {
-                out.println("<h2>Student added successfully!</h2>");
+                out.println("<h2><b>Student added successfully!<b></h2>");
                 out.println("<p>Generated ID: " + studentId + "</p>");
             } else {
                 out.println("<h2>Failed to add student.</h2>");
             }
 
         } catch (Exception e) {
-            out.println("<h2>Error: " + e.getMessage() + "</h2>");
+            out.println("<h2>Error occurred:</h2>");
+            out.println("<pre>");
+            e.printStackTrace(out); // show full stacktrace in browser
+            out.println("</pre>");
         } finally {
+            out.println("</body></html>");
             out.close();
         }
     }

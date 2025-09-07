@@ -16,6 +16,11 @@ public class StudentDAO {
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
 
+            if (conn == null) {
+                System.out.println("DB Connection is null!");
+                return -1;
+            }
+
             ps.setString(1, s.getName());
             ps.setString(2, s.getEmail());
             ps.setString(3, s.getPhoneNumber());
@@ -24,20 +29,27 @@ public class StudentDAO {
             ps.setString(6, s.getCourse());
             ps.setInt(7, s.getYear());
 
-            ps.executeUpdate();
-
-            var rs = ps.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
-            } else {
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                System.out.println("No rows inserted!");
                 return -1;
             }
 
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                } else {
+                    System.out.println("No ID obtained!");
+                    return -1;
+                }
+            }
+
         } catch (SQLException e) {
-            System.out.println("Error Adding Student: " + e.getMessage());
+            e.printStackTrace(); // <-- Print full exception
             return -1;
         }
     }
+
 
     // READ
     public Student getStudentById(int id) {
